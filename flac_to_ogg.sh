@@ -69,25 +69,11 @@ mkdir -p "$dst_dir"
 
 # Loop through the source directory
 for i in "$src_dir"/*.flac; do
-
-	ARTIST=$(ffprobe -loglevel error -show_entries format_tags=artist -of default=noprint_wrappers=1:nokey=1 "$i")
-	ALBUM=$(ffprobe -loglevel error -show_entries format_tags=album -of default=noprint_wrappers=1:nokey=1 "$i")
-	TITLE=$(ffprobe -loglevel error -show_entries format_tags=title -of default=noprint_wrappers=1:nokey=1 "$i")
-	GENRE=$(ffprobe -loglevel error -show_entries format_tags=genre -of default=noprint_wrappers=1:nokey=1 "$i")
-	ALBDATE=$(ffprobe -loglevel error -show_entries format_tags=date -of default=noprint_wrappers=1:nokey=1 "$i")
 	TRACKNO=$(ffprobe -loglevel error -show_entries format_tags=track -of default=noprint_wrappers=1:nokey=1 "$i")
-
+	TITLE=$(ffprobe -loglevel error -show_entries format_tags=title -of default=noprint_wrappers=1:nokey=1 "$i")
 	OGGFILE=$( printf "%02d - %s.ogg" ${TRACKNO} "${TITLE}" )
 
-	oggenc -q9 -o "${dst_dir}${OGGFILE}"	\
-	-a "${ARTIST}"				\
-	-G "${GENRE}"				\
-	-d "${ALBDATE}"				\
-	-N "${TRACKNO}"				\
-	-t "${TITLE}"				\
-	-l "${ALBUM}"				\
-	"$i"
-
+	oggenc -q9 -o "${dst_dir}${OGGFILE}" "$i"
 done
 
 # Exit 0
