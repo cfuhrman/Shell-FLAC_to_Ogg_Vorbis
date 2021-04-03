@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Original script provided by will177 on LinuxQuestions.org
 # www.linuxquestions.org/questions/linux-general-1/bash-script-to-convert-flac-album-to-ogg-vorbis-preserving-tags-772235/
@@ -70,7 +70,7 @@ mkdir -p "$dst_dir"
 # Loop through the source directory
 for i in "$src_dir"/*.flac; do
 	TRACKNO=$(ffprobe -loglevel error -show_entries format_tags=track -of default=noprint_wrappers=1:nokey=1 "$i")
-	TITLE=$(ffprobe -loglevel error -show_entries format_tags=title -of default=noprint_wrappers=1:nokey=1 "$i")
+	TITLE=$(ffprobe -loglevel error -show_entries format_tags=title -of default=noprint_wrappers=1:nokey=1 "$i" | sed 's/\//_/g')
 	OGGFILE=$( printf "%02d - %s.ogg" ${TRACKNO} "${TITLE}" )
 
 	oggenc -q9 -o "${dst_dir}${OGGFILE}" "$i"
