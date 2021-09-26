@@ -26,6 +26,11 @@ command -v oggenc >/dev/null 2>&1 || {
 	exit -1
 }
 
+command -v ffprobe >/dev/null 2>&1 || {
+	printf "This script requires ffprobe, available via the ffmpeg package.  Aborting.\n" >&2
+	exit -1
+}
+
 # Ensure that two arguments were supplied
 ## Exit 1 otherwise
 if [ $# -lt 2 ]; then
