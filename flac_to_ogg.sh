@@ -77,7 +77,7 @@ for i in "$src_dir"/*.flac; do
 	TRACKNO=$(ffprobe -loglevel error -show_entries format_tags=track -of default=noprint_wrappers=1:nokey=1 "$i")
 	TITLE=$(ffprobe -loglevel error -show_entries format_tags=title -of default=noprint_wrappers=1:nokey=1 "$i" | sed 's/\//_/g')
 	ALBUM=$(ffprobe -loglevel error -show_entries format_tags=album -of default=noprint_wrappers=1:nokey=1 "$i")
-	OGGFILE=$( printf "%02d - %s - %s.ogg" ${TRACKNO} "${ALBUM}" "${TITLE}" )
+	OGGFILE=$( printf "%02d - %s - %s.ogg" ${TRACKNO} "${ALBUM/:/-}" "${TITLE}" )
 
 	oggenc -q9 -o "${dst_dir}${OGGFILE}" "$i"
 done
