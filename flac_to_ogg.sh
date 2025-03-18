@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # Original script provided by will177 on LinuxQuestions.org
 # www.linuxquestions.org/questions/linux-general-1/bash-script-to-convert-flac-album-to-ogg-vorbis-preserving-tags-772235/
@@ -74,12 +74,34 @@ mkdir -p "$dst_dir"
 
 # Loop through the source directory
 for i in "$src_dir"/*.flac; do
-	TRACKNO=$(ffprobe -loglevel error -show_entries format_tags=track -of default=noprint_wrappers=1:nokey=1 "$i")
-	TITLE=$(ffprobe -loglevel error -show_entries format_tags=title -of default=noprint_wrappers=1:nokey=1 "$i" | sed 's/\//_/g')
-	ALBUM=$(ffprobe -loglevel error -show_entries format_tags=album -of default=noprint_wrappers=1:nokey=1 "$i")
-	OGGFILE=$( printf "%02d - %s - %s.ogg" ${TRACKNO} "${ALBUM/:/-}" "${TITLE}" )
 
-	oggenc -q9 -o "${dst_dir}${OGGFILE}" "$i"
+	ARTIST=$(ffprobe -loglevel error -show_entries format_tags=artist -of default=noprint_wrappers=1:nokey=1 "$i")
+	ALBUM=$(ffprobe -loglevel error -show_entries format_tags=album -of default=noprint_wrappers=1:nokey=1 "$i")
+	TITLE=$(ffprobe -loglevel error -show_entries format_tags=title -of default=noprint_wrappers=1:nokey=1 "$i")
+	GENRE=$(ffprobe -loglevel error -show_entries format_tags=genre -of default=noprint_wrappers=1:nokey=1 "$i")
+	ALBDATE=$(ffprobe -loglevel error -show_entries format_tags=date -of default=noprint_wrappers=1:nokey=1 "$i")
+	TRACKNO=$(ffprobe -loglevel error -show_entries format_tags=track -of default=noprint_wrappers=1:nokey=1 "$i")
+
+        case "$TRACKNO" in
+        ''|*[!0-9]*)
+                OGGFILE=$( printf "%s - %s.ogg" "${ARTIST}" "${TITLE}"
+                       )
+                ;;
+        *)
+                OGGFILE=$( printf "%s - %s - %02d. %s.ogg" "${ARTIST}" \
+                                  "${ALBUM}" ${TRACKNO} "${TITLE}" )
+                ;;
+        esac
+        
+	oggenc -q9 -o "${dst_dir}${OGGFILE}"	\
+	-a "${ARTIST}"				\
+	-G "${GENRE}"				\
+	-d "${ALBDATE}"				\
+	-N "${TRACKNO}"				\
+	-t "${TITLE}"				\
+	-l "${ALBUM}"				\
+	"$i"
+
 done
 
 # Exit 0
